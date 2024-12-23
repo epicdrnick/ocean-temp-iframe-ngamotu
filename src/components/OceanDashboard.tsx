@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Waves, MapPin, ThermometerSun, Sun } from "lucide-react";
+import { Waves, MapPin, ThermometerSun, Sun, Home, Search, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 
@@ -43,77 +43,88 @@ const OceanDashboard = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#FEF7CD] to-[#D3E4FD] p-4 sm:p-8 animate-fade-in">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <div 
+      className="min-h-screen bg-gradient-to-b from-[#1B4D89] to-[#7C9CBF] text-white p-4 sm:p-8 animate-fade-in"
+      style={{
+        backgroundImage: `url('/lovable-uploads/7ba81a09-0a3f-4b98-bbfd-b4fc032b58d0.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundBlend: 'overlay'
+      }}
+    >
+      <div className="max-w-md mx-auto space-y-6">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-2">
-            <Waves className="w-8 h-8 text-ocean-600" />
-            <h1 className="text-2xl font-bold text-ocean-900">Ngamotu Beach Ocean Monitor</h1>
+            <h1 className="text-3xl font-bold text-white">Ngamotu Beach</h1>
           </div>
-          <Sun className="w-10 h-10 text-yellow-500 animate-pulse" />
+          <Sun className="w-10 h-10 text-yellow-300 animate-pulse" />
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <Card className="p-6 bg-white/70 backdrop-blur-sm border-ocean-200 shadow-lg hover:shadow-xl transition-shadow">
-            <div className="flex items-center space-x-2 mb-4">
-              <ThermometerSun className="w-5 h-5 text-ocean-600" />
-              <h2 className="text-lg font-semibold text-ocean-900">Current Temperature</h2>
+        <div className="relative">
+          <div className="absolute inset-0 bg-black/20 backdrop-blur-xl rounded-3xl" />
+          <Card className="p-6 bg-white/10 border-0 shadow-2xl relative overflow-hidden rounded-3xl">
+            <div className="flex items-center space-x-2 mb-6">
+              <ThermometerSun className="w-6 h-6 text-white" />
+              <h2 className="text-xl font-semibold text-white">Current Temperature</h2>
             </div>
             {isLoading ? (
-              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full bg-white/20" />
             ) : (
-              <div className="text-4xl font-bold text-ocean-700">
-                {mockData[mockData.length - 1].temperature.toFixed(1)}°C
+              <div className="space-y-4">
+                <div className="text-6xl font-bold text-white">
+                  {mockData[mockData.length - 1].temperature.toFixed(1)}°C
+                </div>
+                <p className="text-lg text-white/80">Perfect for a summer swim!</p>
               </div>
             )}
-            <p className="mt-2 text-sm text-ocean-600">Perfect for a swim!</p>
-          </Card>
-
-          <Card className="p-6 bg-white/70 backdrop-blur-sm border-ocean-200 shadow-lg hover:shadow-xl transition-shadow">
-            <div className="flex items-center space-x-2 mb-4">
-              <MapPin className="w-5 h-5 text-ocean-600" />
-              <h2 className="text-lg font-semibold text-ocean-900">Location Info</h2>
-            </div>
-            <div className="space-y-2 text-ocean-800">
-              <p className="font-medium">Ngamotu Beach, New Plymouth</p>
-              <p>Taranaki, New Zealand</p>
-              <p className="text-sm text-ocean-600">39.0556° S, 174.0452° E</p>
-            </div>
           </Card>
         </div>
 
-        <Card className="p-6 bg-white/70 backdrop-blur-sm border-ocean-200 shadow-lg">
-          <h2 className="text-lg font-semibold text-ocean-900 mb-4">24-Hour Temperature Trend</h2>
+        <Card className="p-6 bg-white/10 border-0 shadow-2xl relative overflow-hidden rounded-3xl backdrop-blur-xl">
+          <div className="flex items-center space-x-2 mb-6">
+            <MapPin className="w-6 h-6 text-white" />
+            <h2 className="text-xl font-semibold text-white">Location</h2>
+          </div>
+          <div className="space-y-3 text-white/80">
+            <p className="text-lg font-medium">Ngamotu Beach, New Plymouth</p>
+            <p>Taranaki, New Zealand</p>
+            <p className="text-sm">39.0556° S, 174.0452° E</p>
+          </div>
+        </Card>
+
+        <Card className="p-6 bg-white/10 border-0 shadow-2xl relative overflow-hidden rounded-3xl backdrop-blur-xl">
+          <h2 className="text-xl font-semibold text-white mb-6">24-Hour Trend</h2>
           {isLoading ? (
-            <Skeleton className="h-[300px] w-full" />
+            <Skeleton className="h-[200px] w-full bg-white/20" />
           ) : (
-            <div className="h-[300px] w-full">
+            <div className="h-[200px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={mockData}>
                   <XAxis 
                     dataKey="time" 
-                    stroke="#0c4a6e"
+                    stroke="#ffffff80"
                     fontSize={12}
                     tickLine={false}
                   />
                   <YAxis 
-                    stroke="#0c4a6e"
+                    stroke="#ffffff80"
                     fontSize={12}
                     domain={['auto', 'auto']}
                     tickLine={false}
                   />
                   <Tooltip 
                     contentStyle={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
                       border: 'none',
-                      borderRadius: '8px',
-                      boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+                      borderRadius: '12px',
+                      backdropFilter: 'blur(12px)',
+                      color: 'white'
                     }}
                   />
                   <Line
                     type="monotone"
                     dataKey="temperature"
-                    stroke="#0ea5e9"
+                    stroke="#ffffff"
                     strokeWidth={2}
                     dot={false}
                   />
@@ -122,6 +133,23 @@ const OceanDashboard = () => {
             </div>
           )}
         </Card>
+
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/10 backdrop-blur-md border-t border-white/20">
+          <div className="max-w-md mx-auto flex justify-around">
+            <button className="flex flex-col items-center text-white/80 hover:text-white">
+              <Home className="w-6 h-6" />
+              <span className="text-xs mt-1">Home</span>
+            </button>
+            <button className="flex flex-col items-center text-white/80 hover:text-white">
+              <Search className="w-6 h-6" />
+              <span className="text-xs mt-1">Search</span>
+            </button>
+            <button className="flex flex-col items-center text-white/80 hover:text-white">
+              <User className="w-6 h-6" />
+              <span className="text-xs mt-1">Profile</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
