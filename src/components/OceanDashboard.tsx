@@ -3,7 +3,8 @@ import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { Waves, MapPin, ThermometerSun } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
+import { useEffect } from "react";
 
 interface TemperatureData {
   temperature: number;
@@ -23,23 +24,26 @@ const OceanDashboard = () => {
       }
       return response.json();
     },
-    retry: 2,
-    refetchInterval: 300000, // Refetch every 5 minutes
+    retry: false, // Disable retries since we know the API doesn't exist
+    enabled: false, // Disable the query since we're using mock data
   });
+
+  // Show error toast only once when error occurs
+  useEffect(() => {
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch ocean temperature data",
+      });
+    }
+  }, [error, toast]);
 
   // For demo purposes, generating mock data
   const mockData: TemperatureData[] = Array.from({ length: 24 }, (_, i) => ({
     temperature: 18 + Math.random() * 2,
     time: `${i}:00`,
   }));
-
-  if (error) {
-    toast({
-      variant: "destructive",
-      title: "Error",
-      description: "Failed to fetch ocean temperature data",
-    });
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-ocean-50 to-ocean-100 p-4 sm:p-8 animate-fade-in">
