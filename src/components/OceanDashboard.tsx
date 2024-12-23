@@ -11,20 +11,44 @@ interface TemperatureData {
   time: string;
 }
 
+// Home Assistant will call this URL when embedded
+const HASS_SENSOR_URL = window.location.hostname === "localhost" 
+  ? "http://localhost:8123/api/states/sensor.ngamotu_water_temperature"
+  : "/api/states/sensor.ngamotu_water_temperature";
+
 const OceanDashboard = () => {
   const { toast } = useToast();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["oceanTemp"],
     queryFn: async () => {
-      const response = await fetch("https://api.example.com/ocean-temp");
-      if (!response.ok) {
-        throw new Error("Failed to fetch ocean temperature data");
+      try {
+        const response = await fetch(HASS_SENSOR_URL, {
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem('hass_token')}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch ocean temperature data");
+        }
+        return response.json();
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        // Fall back to mock data when running standalone
+        return {
+          state: "20.5",
+          attributes: {
+            history: Array.from({ length: 24 }, (_, i) => ({
+              temperature: 18 + Math.random() * 2,
+              time: `${i}:00`,
+            })),
+          },
+        };
       }
-      return response.json();
     },
+    refetchInterval: 300000, // Refresh every 5 minutes
     retry: false,
-    enabled: false,
   });
 
   useEffect(() => {
@@ -41,6 +65,9 @@ const OceanDashboard = () => {
     temperature: 18 + Math.random() * 2,
     time: `${i}:00`,
   }));
+
+  const currentTemp = data?.state || mockData[mockData.length - 1].temperature;
+  const historyData = data?.attributes?.history || mockData;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-ocean-600 to-ocean-300 text-white p-4 sm:p-8 animate-fade-in">
