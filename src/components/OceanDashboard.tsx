@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { ThermometerSun, MapPin, Sun } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface TemperatureData {
   temperature: number;
@@ -18,24 +18,26 @@ const HASS_SENSOR_URL = window.location.hostname === "localhost"
 
 const OceanDashboard = () => {
   const { toast } = useToast();
+  const [isEmbedded, setIsEmbedded] = useState(false);
+
+  // Check if we're running inside Home Assistant
+  useEffect(() => {
+    try {
+      // @ts-ignore - Home Assistant specific check
+      if (window.parent !== window && window.location.ancestorOrigins?.[0]?.includes('8123')) {
+        setIsEmbedded(true);
+      }
+    } catch (e) {
+      console.log('Not running in Home Assistant');
+    }
+  }, []);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["oceanTemp"],
     queryFn: async () => {
-      try {
-        const response = await fetch(HASS_SENSOR_URL, {
-          headers: {
-            "Authorization": `Bearer ${localStorage.getItem('hass_token')}`,
-            "Content-Type": "application/json",
-          },
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch ocean temperature data");
-        }
-        return response.json();
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        // Fall back to mock data when running standalone
+      // If not embedded in Home Assistant, use mock data
+      if (!isEmbedded) {
+        console.log('Using mock data (not embedded in Home Assistant)');
         return {
           state: "20.5",
           attributes: {
@@ -46,9 +48,34 @@ const OceanDashboard = () => {
           },
         };
       }
+
+      try {
+        const token = localStorage.getItem('hass_token');
+        if (!token) {
+          console.log('No Home Assistant token found');
+          throw new Error('No Home Assistant authentication token found');
+        }
+
+        const response = await fetch(HASS_SENSOR_URL, {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+        }
+
+        return response.json();
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        throw err;
+      }
     },
     refetchInterval: 300000, // Refresh every 5 minutes
     retry: false,
+    enabled: isEmbedded, // Only run query when embedded in Home Assistant
   });
 
   useEffect(() => {
@@ -56,10 +83,12 @@ const OceanDashboard = () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to fetch ocean temperature data",
+        description: isEmbedded 
+          ? "Failed to fetch ocean temperature data. Please check your Home Assistant configuration."
+          : "Running in standalone mode with mock data.",
       });
     }
-  }, [error, toast]);
+  }, [error, toast, isEmbedded]);
 
   const mockData: TemperatureData[] = Array.from({ length: 24 }, (_, i) => ({
     temperature: 18 + Math.random() * 2,
