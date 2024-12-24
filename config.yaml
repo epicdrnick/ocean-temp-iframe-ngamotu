@@ -1,0 +1,23 @@
+name: "Ngamotu Beach Temperature Dashboard"
+version: "1.0.0"
+slug: "ngamotu_temperature"
+description: "Water temperature dashboard for Ngamotu Beach using StormGlass.io API"
+url: "https://github.com/YOUR_USERNAME/ngamotu-temperature-addon"
+arch:
+  - armhf
+  - armv7
+  - aarch64
+  - amd64
+  - i386
+startup: application
+boot: auto
+ports:
+  8099/tcp: 8099
+ports_description:
+  8099/tcp: Web interface
+options:
+  stormglass_api_key: null
+schema:
+  stormglass_api_key: str
+webui: "http://[HOST]:[PORT:8099]"
+init: false

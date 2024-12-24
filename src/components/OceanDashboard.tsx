@@ -11,71 +11,38 @@ interface TemperatureData {
   time: string;
 }
 
-// Home Assistant will call this URL when embedded
-const HASS_SENSOR_URL = window.location.hostname === "localhost" 
-  ? "http://localhost:8123/api/states/sensor.ngamotu_water_temperature"
-  : "/api/states/sensor.ngamotu_water_temperature";
+interface StormGlassResponse {
+  hours: Array<{
+    time: string;
+    waterTemperature: {
+      sg: number;
+    };
+  }>;
+}
+
+const STORMGLASS_ENDPOINT = 'https://api.stormglass.io/v2/weather/point';
+const NGAMOTU_LAT = -39.0556;
+const NGAMOTU_LONG = 174.0452;
 
 const OceanDashboard = () => {
   const { toast } = useToast();
-  const [isEmbedded, setIsEmbedded] = useState(false);
-
-  // Check if we're running inside Home Assistant
-  useEffect(() => {
-    try {
-      // @ts-ignore - Home Assistant specific check
-      if (window.parent !== window && window.location.ancestorOrigins?.[0]?.includes('8123')) {
-        setIsEmbedded(true);
-      }
-    } catch (e) {
-      console.log('Not running in Home Assistant');
-    }
-  }, []);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["oceanTemp"],
     queryFn: async () => {
-      // If not embedded in Home Assistant, use mock data
-      if (!isEmbedded) {
-        console.log('Using mock data (not embedded in Home Assistant)');
-        return {
-          state: "20.5",
-          attributes: {
-            history: Array.from({ length: 24 }, (_, i) => ({
-              temperature: 18 + Math.random() * 2,
-              time: `${i}:00`,
-            })),
-          },
-        };
-      }
-
       try {
-        const token = localStorage.getItem('hass_token');
-        if (!token) {
-          console.log('No Home Assistant token found');
-          throw new Error('No Home Assistant authentication token found');
-        }
-
-        const response = await fetch(HASS_SENSOR_URL, {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
+        const response = await fetch('/api/temperature');
         if (!response.ok) {
           throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
         }
-
         return response.json();
       } catch (err) {
         console.error("Error fetching data:", err);
         throw err;
       }
     },
-    refetchInterval: 300000, // Refresh every 5 minutes
+    refetchInterval: 1000 * 60 * 60 * 2.4, // Fetch every 2.4 hours (10 times per day)
     retry: false,
-    enabled: isEmbedded, // Only run query when embedded in Home Assistant
   });
 
   useEffect(() => {
@@ -83,20 +50,16 @@ const OceanDashboard = () => {
       toast({
         variant: "destructive",
         title: "Error",
-        description: isEmbedded 
-          ? "Failed to fetch ocean temperature data. Please check your Home Assistant configuration."
-          : "Running in standalone mode with mock data.",
+        description: "Failed to fetch ocean temperature data. Please check your configuration.",
       });
     }
-  }, [error, toast, isEmbedded]);
+  }, [error, toast]);
 
-  const mockData: TemperatureData[] = Array.from({ length: 24 }, (_, i) => ({
-    temperature: 18 + Math.random() * 2,
+  const currentTemp = data?.current?.temperature || 20;
+  const historyData = data?.history || Array.from({ length: 24 }, (_, i) => ({
+    temperature: 20 + Math.random() * 2,
     time: `${i}:00`,
   }));
-
-  const currentTemp = data?.state || mockData[mockData.length - 1].temperature;
-  const historyData = data?.attributes?.history || mockData;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-ocean-600 to-ocean-300 text-white p-4 sm:p-8 animate-fade-in">
@@ -118,7 +81,7 @@ const OceanDashboard = () => {
           ) : (
             <div className="space-y-4">
               <div className="text-6xl font-bold text-white">
-                {mockData[mockData.length - 1].temperature.toFixed(1)}°C
+                {currentTemp.toFixed(1)}°C
               </div>
               <p className="text-lg text-white/80">Perfect for a summer swim!</p>
             </div>
@@ -144,7 +107,7 @@ const OceanDashboard = () => {
           ) : (
             <div className="h-[200px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={mockData}>
+                <LineChart data={historyData}>
                   <XAxis 
                     dataKey="time" 
                     stroke="#ffffff80"

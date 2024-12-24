@@ -1,69 +1,50 @@
-# Welcome to your Lovable project
+# Ngamotu Beach Temperature Dashboard - Home Assistant Addon
 
-## Project info
+This addon provides a beautiful dashboard showing water temperature data for Ngamotu Beach, New Plymouth, using StormGlass.io API.
 
-**URL**: https://lovable.dev/projects/09ff1cd0-73b8-40ef-b4f4-9056ae0da476
+## Features
+- Real-time water temperature display
+- 24-hour temperature trend
+- Beautiful, responsive design with frosted glass UI
+- StormGlass.io API integration with rate limiting (10 calls per day)
 
-## How can I edit this code?
+## Installation
 
-There are several ways of editing your application.
+1. In Home Assistant, navigate to **Settings** → **Add-ons** → **Add-on Store**
+2. Click the menu (⋮) → **Repositories**
+3. Add this repository URL: `https://github.com/YOUR_USERNAME/ngamotu-temperature-addon`
+4. Click **Add**
+5. Find "Ngamotu Beach Temperature Dashboard" in the addon list
+6. Click **Install**
 
-**Use Lovable**
+## Configuration
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/09ff1cd0-73b8-40ef-b4f4-9056ae0da476) and start prompting.
+1. Get your API key from [StormGlass.io](https://stormglass.io)
+2. In the addon configuration, set your StormGlass API key:
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```yaml
+stormglass_api_key: your_api_key_here
 ```
 
-**Edit a file directly in GitHub**
+3. Start the addon
+4. Access the dashboard at: `http://your-home-assistant:8099`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Usage
 
-**Use GitHub Codespaces**
+The dashboard will automatically fetch data from StormGlass.io once every 2.4 hours (to stay within the 10 requests per day limit). The data is cached and updated periodically.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Development
 
-## What technologies are used for this project?
+To run this locally:
 
-This project is built with .
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Create a `.env` file with your StormGlass API key:
+   ```
+   STORMGLASS_API_KEY=your_api_key_here
+   ```
+4. Run: `npm run dev`
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Support
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/09ff1cd0-73b8-40ef-b4f4-9056ae0da476) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+If you encounter any issues, please open an issue on GitHub.
