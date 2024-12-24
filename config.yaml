@@ -2,7 +2,7 @@ name: "Ngamotu Beach Temperature Dashboard"
 version: "1.0.0"
 slug: "ngamotu_temperature"
 description: "Water temperature dashboard for Ngamotu Beach using StormGlass.io API"
-url: "https://github.com/YOUR_USERNAME/ngamotu-temperature-addon"
+url: "https://github.com/epicdrnick/ngamotu-temperature-addon"
 arch:
   - armhf
   - armv7
